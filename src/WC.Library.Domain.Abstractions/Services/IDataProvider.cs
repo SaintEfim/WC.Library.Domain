@@ -1,4 +1,4 @@
-﻿namespace Library.Domain.Services;
+﻿namespace WC.Library.Domain.Services;
 
 public interface IDataProvider<TDomain>
 {

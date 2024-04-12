@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
-using Library.Domain.Services;
 using Microsoft.Extensions.Logging;
-using WC.Library.Data.Abstractions.Repository;
+using WC.Library.Data.Repository;
 using WC.Library.Shared.Exceptions;
 
 namespace WC.Library.Domain.Services;

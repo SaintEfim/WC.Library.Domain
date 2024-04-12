@@ -1,4 +1,4 @@
-﻿namespace WC.Library.Domain.Abstractions.Services;
+﻿namespace WC.Library.Domain.Services;
 
 public interface IDataManager<in TDomain> where TDomain : class
 {

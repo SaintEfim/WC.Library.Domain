@@ -1,4 +1,4 @@
-﻿namespace WC.Library.Domain.Abstractions.Models;
+﻿namespace WC.Library.Domain.Models;
 
 public interface IModel
 {

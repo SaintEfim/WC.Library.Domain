@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
-using WC.Library.Data.Abstractions.Repository;
-using WC.Library.Domain.Abstractions.Services;
+using WC.Library.Data.Repository;
 
 namespace WC.Library.Domain.Services;
 
