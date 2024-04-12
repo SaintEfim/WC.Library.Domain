@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{8657CBB4-30BA-4DD2-A83E-E6E8DE29C1E6}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WC.Library.Domain", "src\WC.Library.Domain\WC.Library.Domain.csproj", "{DE8FD7F0-ACD4-45DA-8497-433E75E93A6B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WC.Library.Domain.Abstractions", "src\WC.Library.Domain.Abstractions\WC.Library.Domain.Abstractions.csproj", "{A922EFF9-2A07-46A7-B0FB-59649E91E903}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DE8FD7F0-ACD4-45DA-8497-433E75E93A6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE8FD7F0-ACD4-45DA-8497-433E75E93A6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE8FD7F0-ACD4-45DA-8497-433E75E93A6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE8FD7F0-ACD4-45DA-8497-433E75E93A6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A922EFF9-2A07-46A7-B0FB-59649E91E903}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A922EFF9-2A07-46A7-B0FB-59649E91E903}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A922EFF9-2A07-46A7-B0FB-59649E91E903}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A922EFF9-2A07-46A7-B0FB-59649E91E903}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
