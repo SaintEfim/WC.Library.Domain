@@ -33,7 +33,7 @@ public abstract class DataProviderBase<TProvider, TRepository, TDomain, TEntity>
         try
         {
             var res = await Repository.Get(cancellationToken);
-            
+
             return Mapper.Map<ICollection<TDomain>>(res);
         }
         catch (Exception ex)
@@ -49,7 +49,7 @@ public abstract class DataProviderBase<TProvider, TRepository, TDomain, TEntity>
         try
         {
             var res = await Repository.GetOneById(id, cancellationToken);
-            
+
             if (res == null)
             {
                 throw new NotFoundException($"User with id {id} not found.");
