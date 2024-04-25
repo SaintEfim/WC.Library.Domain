@@ -1,8 +1,9 @@
-﻿using FluentValidation;
+﻿using System.Text.RegularExpressions;
+using FluentValidation;
 
 namespace WC.Library.Domain.Services.Validators;
 
-public class EmailValidator : AbstractValidator<string>
+public partial class EmailValidator : AbstractValidator<string>
 {
     public EmailValidator()
     {
@@ -37,13 +38,13 @@ public class EmailValidator : AbstractValidator<string>
         domain = null;
         try
         {
-            var parts = email.Split('@');
-            if (parts.Length != 2)
+            var match = MyRegex().Match(email);
+            if (!match.Success)
             {
                 return false;
             }
 
-            domain = parts[1];
+            domain = match.Groups[2].Value;
             return true;
         }
         catch (ArgumentException)
@@ -51,4 +52,7 @@ public class EmailValidator : AbstractValidator<string>
             return false;
         }
     }
+
+    [GeneratedRegex(@"^(.+)@(.+)$")]
+    private static partial Regex MyRegex();
 }
