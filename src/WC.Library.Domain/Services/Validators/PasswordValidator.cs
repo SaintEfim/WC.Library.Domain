@@ -7,11 +7,13 @@ public class PasswordValidator : AbstractValidator<string>
     public PasswordValidator()
     {
         RuleFor(x => x)
-            .NotEmpty()
-            .Length(8, 64)
-            .Matches(@"(?=.*\d)").WithMessage("At least one digit (0-9)")
-            .Matches("(?=.*[a-z])").WithMessage("At least one lowercase letter (a-z)")
-            .Matches("(?=.*[A-Z])").WithMessage("At least one uppercase letter (A-Z)")
-            .Matches(@"^\S*$");
+            .Cascade(CascadeMode.Stop)
+            .MinimumLength(8).WithMessage("Password must be at least 8 characters.")
+            .MaximumLength(64).WithMessage("Password must be no more than 64 characters.")
+            .Matches(@"(?=.*\d)").WithMessage("Password must contain at least one digit.")
+            .Matches("(?=.*[a-z])").WithMessage("Password must contain at least one lowercase letter.")
+            .Matches("(?=.*[A-Z])").WithMessage("Password must contain at least one uppercase letter.")
+            .Matches("[!@#$%^&*()-+=]").WithMessage("Password must contain at least one special character.")
+            .Matches(@"^\S*$").WithMessage("Password cannot contain whitespace characters.");
     }
 }
