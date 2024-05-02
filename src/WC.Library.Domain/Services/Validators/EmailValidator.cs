@@ -1,29 +1,33 @@
-﻿using System.Text.RegularExpressions;
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace WC.Library.Domain.Services.Validators;
 
-public partial class EmailValidator : AbstractValidator<string>
+public class EmailValidator : AbstractValidator<string>
 {
     public EmailValidator()
     {
         RuleFor(x => x)
-            .EmailAddress()
+            .Cascade(CascadeMode.Stop)
+            .MinimumLength(8).WithMessage("Email must be at least 8 characters.")
+            .MaximumLength(64).WithMessage("Email must be no more than 64 characters.")
+            .Matches(@"^\S*$").WithMessage("Email cannot contain whitespace characters.")
+            .EmailAddress().WithMessage("Invalid email address format.")
             .Custom((email, context) =>
             {
-                if (!TryGetDomain(email, out var domain))
-                {
-                    context.AddFailure("Invalid email format or domain");
-                    return;
-                }
+                var domain = email.Split('@').LastOrDefault();
 
-                var allowedDomains = new List<string?>
+                var allowedDomains = new List<string>
                 {
                     "gmail.com",
                     "mail.ru",
                     "yahoo.com",
                     "hotmail.com",
-                    "outlook.com"
+                    "outlook.com",
+                    "yandex.ru",
+                    "protonmail.com",
+                    "aol.com",
+                    "icloud.com",
+                    "zoho.com"
                 };
 
                 if (domain != null && !allowedDomains.Contains(domain))
@@ -32,27 +36,4 @@ public partial class EmailValidator : AbstractValidator<string>
                 }
             });
     }
-
-    private static bool TryGetDomain(string email, out string? domain)
-    {
-        domain = null;
-        try
-        {
-            var match = MyRegex().Match(email);
-            if (!match.Success)
-            {
-                return false;
-            }
-
-            domain = match.Groups[2].Value;
-            return true;
-        }
-        catch (ArgumentException)
-        {
-            return false;
-        }
-    }
-
-    [GeneratedRegex(@"^(.+)@(.+)$")]
-    private static partial Regex MyRegex();
 }
