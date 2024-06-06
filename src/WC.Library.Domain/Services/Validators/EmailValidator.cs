@@ -7,11 +7,21 @@ public class EmailValidator : AbstractValidator<string>
     public EmailValidator()
     {
         RuleFor(x => x)
-            .Cascade(CascadeMode.Stop)
-            .MinimumLength(8).WithMessage("Email must be at least 8 characters.")
-            .MaximumLength(64).WithMessage("Email must be no more than 64 characters.")
-            .Matches(@"^\S*$").WithMessage("Email cannot contain whitespace characters.")
-            .EmailAddress().WithMessage("Invalid email address format.")
+            .NotEmpty();
+
+        RuleFor(x => x)
+            .MinimumLength(8).WithMessage("Email must be at least 8 characters.");
+
+        RuleFor(x => x)
+            .MaximumLength(64).WithMessage("Email must be no more than 64 characters.");
+
+        RuleFor(x => x)
+            .Matches(@"^\S*$").WithMessage("Email cannot contain whitespace characters.");
+
+        RuleFor(x => x)
+            .EmailAddress().WithMessage("Invalid email address format.");
+
+        RuleFor(x => x)
             .Custom((email, context) =>
             {
                 var domain = email.Split('@').LastOrDefault();
