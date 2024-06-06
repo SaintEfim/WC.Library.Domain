@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
+using WC.Library.Data.Models;
 using WC.Library.Data.Repository;
 using WC.Library.Shared.Exceptions;
 
@@ -9,7 +10,7 @@ public abstract class DataProviderBase<TProvider, TRepository, TDomain, TEntity>
     where TProvider : IDataProvider<TDomain>
     where TRepository : IRepository<TEntity>
     where TDomain : class
-    where TEntity : class
+    where TEntity : class, IEntity
 {
     protected DataProviderBase(
         IMapper mapper,
@@ -28,7 +29,7 @@ public abstract class DataProviderBase<TProvider, TRepository, TDomain, TEntity>
 
     private ILogger<TProvider> Logger { get; }
 
-    public virtual async Task<ICollection<TDomain>> Get(CancellationToken cancellationToken = default)
+    public virtual async Task<IEnumerable<TDomain>> Get(CancellationToken cancellationToken = default)
     {
         try
         {

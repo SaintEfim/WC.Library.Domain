@@ -1,14 +1,17 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
+using WC.Library.Data.Models;
 using WC.Library.Data.Repository;
+using WC.Library.Domain.Models;
 
 namespace WC.Library.Domain.Services;
 
 public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity> : IDataManager<TDomain>
     where TManager : IDataManager<TDomain>
     where TRepository : IRepository<TEntity>
-    where TDomain : class
+    where TDomain : IModel
+    where TEntity : class, IEntity
 {
     protected DataManagerBase(
         IMapper mapper,
@@ -30,40 +33,30 @@ public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity> :
 
     protected IEnumerable<IValidator> Validators { get; }
 
-    public async Task Create(TDomain model, CancellationToken cancellationToken = default)
+    public async Task<TDomain> Create(TDomain model, CancellationToken cancellationToken = default)
     {
         Validate(model);
-        await CreateAction(model, cancellationToken);
+        return await CreateAction(model, cancellationToken);
     }
 
-    public async Task Update(TDomain model, CancellationToken cancellationToken = default)
+    public async Task<TDomain> Update(TDomain model, CancellationToken cancellationToken = default)
     {
         Validate(model);
-        await UpdateAction(model, cancellationToken);
+        return await UpdateAction(model, cancellationToken);
     }
 
-    public virtual async Task Delete(Guid id, CancellationToken cancellationToken = default)
+    public virtual async Task<TDomain> Delete(Guid id, CancellationToken cancellationToken = default)
     {
-        try
-        {
-            ArgumentNullException.ThrowIfNull(id);
-
-            await Repository.Delete(id, cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error when deleting an model: {Message}", ex.Message);
-            throw;
-        }
+        return await DeleteAction(id, cancellationToken);
     }
 
-    protected virtual async Task CreateAction(
+    protected virtual async Task<TDomain> CreateAction(
         TDomain model,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            await Repository.Create(Mapper.Map<TEntity>(model), cancellationToken);
+            return Mapper.Map<TDomain>(await Repository.Create(Mapper.Map<TEntity>(model), cancellationToken));
         }
         catch (Exception ex)
         {
@@ -72,17 +65,32 @@ public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity> :
         }
     }
 
-    protected virtual async Task UpdateAction(
+    protected virtual async Task<TDomain> UpdateAction(
         TDomain model,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            await Repository.Update(Mapper.Map<TEntity>(model), cancellationToken);
+            return Mapper.Map<TDomain>(await Repository.Update(Mapper.Map<TEntity>(model), cancellationToken));
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error updating model: {Message}", ex.Message);
+            throw;
+        }
+    }
+
+    protected virtual async Task<TDomain> DeleteAction(Guid id, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            ArgumentNullException.ThrowIfNull(id);
+
+            return Mapper.Map<TDomain>(await Repository.Delete(id, cancellationToken));
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error when deleting an model: {Message}", ex.Message);
             throw;
         }
     }

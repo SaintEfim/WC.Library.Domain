@@ -1,8 +1,10 @@
-﻿namespace WC.Library.Domain.Services;
+﻿using WC.Library.Domain.Models;
 
-public interface IDataManager<in TDomain> where TDomain : class
+namespace WC.Library.Domain.Services;
+
+public interface IDataManager<TDomain> where TDomain : IModel
 {
-    Task Create(TDomain model, CancellationToken cancellationToken = default);
-    Task Update(TDomain model, CancellationToken cancellationToken = default);
-    Task Delete(Guid id, CancellationToken cancellationToken = default);
+    Task<TDomain> Create(TDomain model, CancellationToken cancellationToken = default);
+    Task<TDomain> Update(TDomain model, CancellationToken cancellationToken = default);
+    Task<TDomain> Delete(Guid id, CancellationToken cancellationToken = default);
 }
