@@ -1,6 +1,8 @@
-﻿namespace WC.Library.Domain.Services;
+﻿using WC.Library.Domain.Models;
 
-public interface IDataProvider<TDomain>
+namespace WC.Library.Domain.Services;
+
+public interface IDataProvider<TDomain> where TDomain : IModel
 {
     Task<IEnumerable<TDomain>> Get(
         CancellationToken cancellationToken = default);

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using WC.Library.Data.Models;
 using WC.Library.Data.Repository;
+using WC.Library.Domain.Models;
 using WC.Library.Shared.Exceptions;
 
 namespace WC.Library.Domain.Services;
@@ -9,7 +10,7 @@ namespace WC.Library.Domain.Services;
 public abstract class DataProviderBase<TProvider, TRepository, TDomain, TEntity> : IDataProvider<TDomain>
     where TProvider : IDataProvider<TDomain>
     where TRepository : IRepository<TEntity>
-    where TDomain : class
+    where TDomain : class, IModel
     where TEntity : class, IEntity
 {
     protected DataProviderBase(
