@@ -14,31 +14,25 @@ public abstract class ValidatorBase<TDomain>
 
     protected IEnumerable<IValidator> Validators { get; }
 
-    protected void Validate<TV>(
-        TDomain model,
-        CancellationToken cancellationToken = default)
+    protected void Validate<TV>(TDomain model, CancellationToken cancellationToken = default(CancellationToken))
     {
-        var validators = Validators.Where(v => v.GetType().IsAssignableTo(typeof(TV))).Cast<IValidator<TDomain>>();
+        var source = this.Validators
+            .Where(v => v is IValidator<TDomain> && v.GetType().IsAssignableTo(typeof(TV)))
+            .Cast<IValidator<TDomain>>();
 
-        Validate(model, validators, cancellationToken);
+        Validate(model, source, cancellationToken);
     }
 
     private static void Validate<TPayload>(
         TPayload model,
         IEnumerable<IValidator<TPayload>> source,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default(CancellationToken))
         where TPayload : class
     {
-        var tasks = source.Select(async x => await x.ValidateAsync(model, cancellationToken));
-        var results = Task.WhenAll(tasks).Result;
+        var results = Task.WhenAll(source.Select(async x => await x.ValidateAsync(model, cancellationToken))).Result;
+        var errors = results.SelectMany(x => x.Errors).Where(x => x != null).ToImmutableList();
 
-        var failures = results.SelectMany(x => x.Errors)
-            .Where(x => x != null)
-            .ToImmutableList();
-
-        if (!failures.IsEmpty)
-        {
-            throw new ValidationException(failures);
-        }
+        if (!errors.IsEmpty)
+            throw new ValidationException(errors);
     }
 }
