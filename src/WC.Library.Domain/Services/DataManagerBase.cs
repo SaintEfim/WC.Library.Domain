@@ -5,11 +5,13 @@ using Microsoft.Extensions.Logging;
 using WC.Library.Data.Models;
 using WC.Library.Data.Repository;
 using WC.Library.Domain.Models;
+using WC.Library.Domain.Services.Validators;
 using WC.Library.Domain.Validators;
 
 namespace WC.Library.Domain.Services;
 
-public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity> : IDataManager<TDomain>
+public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity> : ValidatorBase<TDomain>,
+    IDataManager<TDomain>
     where TManager : IDataManager<TDomain>
     where TRepository : IRepository<TEntity>
     where TDomain : class, IModel
@@ -20,11 +22,11 @@ public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity> :
         ILogger<TManager> logger,
         TRepository repository,
         IEnumerable<IValidator> validators)
+        : base(validators)
     {
         Mapper = mapper;
         Logger = logger;
         Repository = repository;
-        Validators = validators;
     }
 
     protected IMapper Mapper { get; }
@@ -32,8 +34,6 @@ public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity> :
     protected TRepository Repository { get; }
 
     private ILogger<TManager> Logger { get; }
-
-    protected IEnumerable<IValidator> Validators { get; }
 
     public async Task<TDomain> Create(TDomain model, CancellationToken cancellationToken = default)
     {
@@ -98,34 +98,6 @@ public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity> :
         {
             Logger.LogError(ex, "Error when deleting an model: {Message}", ex.Message);
             throw;
-        }
-    }
-
-    protected void Validate<TV>(
-        TDomain model,
-        CancellationToken cancellationToken = default)
-    {
-        var validators = Validators.Where(v => v.GetType().IsAssignableTo(typeof(TV))).Cast<IValidator<TDomain>>();
-
-        Validate(model, validators, cancellationToken);
-    }
-
-    private static void Validate<TPayload>(
-        TPayload model,
-        IEnumerable<IValidator<TPayload>> source,
-        CancellationToken cancellationToken = default)
-        where TPayload : class
-    {
-        var tasks = source.Select(async x => await x.ValidateAsync(model, cancellationToken));
-        var results = Task.WhenAll(tasks).Result; // Wait for all validations to complete
-
-        var failures = results.SelectMany(x => x.Errors)
-            .Where(x => x != null)
-            .ToImmutableList();
-
-        if (!failures.IsEmpty)
-        {
-            throw new ValidationException(failures);
         }
     }
 }
