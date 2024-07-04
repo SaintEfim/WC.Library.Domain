@@ -30,11 +30,12 @@ public abstract class DataProviderBase<TProvider, TRepository, TDomain, TEntity>
 
     private ILogger<TProvider> Logger { get; }
 
-    public virtual async Task<IEnumerable<TDomain>> Get(CancellationToken cancellationToken = default)
+    public virtual async Task<IEnumerable<TDomain>> Get(bool withIncludes = false,
+        CancellationToken cancellationToken = default)
     {
         try
         {
-            var res = await Repository.Get(cancellationToken);
+            var res = await Repository.Get(withIncludes, cancellationToken);
 
             return Mapper.Map<ICollection<TDomain>>(res);
         }
