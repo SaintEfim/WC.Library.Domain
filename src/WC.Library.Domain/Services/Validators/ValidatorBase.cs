@@ -14,11 +14,21 @@ public abstract class ValidatorBase<TDomain>
 
     protected IEnumerable<IValidator> Validators { get; }
 
-    protected void Validate<TV>(TDomain model, CancellationToken cancellationToken = default(CancellationToken))
+    protected void Validate<TV>(TDomain model, CancellationToken cancellationToken = default)
     {
-        var source = this.Validators
+        var source = Validators
             .Where(v => v is IValidator<TDomain> && v.GetType().IsAssignableTo(typeof(TV)))
             .Cast<IValidator<TDomain>>();
+
+        Validate(model, source, cancellationToken);
+    }
+
+    protected void Validate<TPayload, TV>(TPayload model, CancellationToken cancellationToken = default)
+        where TPayload : class
+    {
+        var source = Validators
+            .Where(v => v is IValidator<TPayload> && v.GetType().IsAssignableTo(typeof(TV)))
+            .Cast<IValidator<TPayload>>();
 
         Validate(model, source, cancellationToken);
     }
@@ -26,7 +36,7 @@ public abstract class ValidatorBase<TDomain>
     private static void Validate<TPayload>(
         TPayload model,
         IEnumerable<IValidator<TPayload>> source,
-        CancellationToken cancellationToken = default(CancellationToken))
+        CancellationToken cancellationToken = default)
         where TPayload : class
     {
         var results = Task.WhenAll(source.Select(async x => await x.ValidateAsync(model, cancellationToken))).Result;
