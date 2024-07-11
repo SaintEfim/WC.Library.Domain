@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using FluentValidation;
 using WC.Library.Domain.Models;
+using WC.Library.Domain.Validators;
 
 namespace WC.Library.Domain.Services.Validators;
 
@@ -29,6 +30,18 @@ public abstract class ValidatorBase<TDomain>
         var source = Validators
             .Where(v => v is IValidator<TPayload> && v.GetType().IsAssignableTo(typeof(TV)))
             .Cast<IValidator<TPayload>>();
+
+        Validate(model, source, cancellationToken);
+    }
+
+    protected void Validate(
+        TDomain model,
+        string actionName,
+        CancellationToken cancellationToken = default)
+    {
+        var source = Validators
+            .Where(v => v is IDomainCustomValidator customValidator && customValidator.ActionName == actionName)
+            .Cast<IValidator<TDomain>>();
 
         Validate(model, source, cancellationToken);
     }
