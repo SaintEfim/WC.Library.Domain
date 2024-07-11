@@ -34,14 +34,15 @@ public abstract class ValidatorBase<TDomain>
         Validate(model, source, cancellationToken);
     }
 
-    protected void Validate(
-        TDomain model,
+    protected void Validate<TPayload>(
+        TPayload model,
         string actionName,
         CancellationToken cancellationToken = default)
+        where TPayload : class
     {
         var source = Validators
             .Where(v => v is IDomainCustomValidator customValidator && customValidator.ActionName == actionName)
-            .Cast<IValidator<TDomain>>();
+            .Cast<IValidator<TPayload>>();
 
         Validate(model, source, cancellationToken);
     }
