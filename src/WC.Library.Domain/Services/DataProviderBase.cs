@@ -46,12 +46,13 @@ public abstract class DataProviderBase<TProvider, TRepository, TDomain, TEntity>
         }
     }
 
-    public virtual async Task<TDomain?> GetOneById(Guid id, CancellationToken cancellationToken = default)
+    public virtual async Task<TDomain?> GetOneById(Guid id, bool withIncludes = false,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(id);
         try
         {
-            var res = await Repository.GetOneById(id, cancellationToken);
+            var res = await Repository.GetOneById(id, withIncludes, cancellationToken);
 
             if (res == null)
             {

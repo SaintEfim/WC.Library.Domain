@@ -48,7 +48,7 @@ public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity> :
 
     public virtual async Task<TDomain> Delete(Guid id, CancellationToken cancellationToken = default)
     {
-        var entity = await Repository.GetOneById(id, cancellationToken);
+        var entity = await Repository.GetOneById(id, true, cancellationToken);
 
         Validate<IDomainDeleteValidator>(Mapper.Map<TDomain>(entity), cancellationToken);
 
