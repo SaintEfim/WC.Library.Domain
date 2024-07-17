@@ -50,21 +50,14 @@ public abstract class DataProviderBase<TProvider, TRepository, TDomain, TEntity>
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(id);
-        try
-        {
-            var res = await Repository.GetOneById(id, withIncludes, cancellationToken);
+        
+        var res = await Repository.GetOneById(id, withIncludes, cancellationToken);
 
-            if (res == null)
-            {
-                throw new NotFoundException($"User with id {id} not found.");
-            }
-
-            return Mapper.Map<TDomain>(res);
-        }
-        catch (Exception ex)
+        if (res == null)
         {
-            Logger.LogError(ex, "Error when retrieving data by ID: {Message}", ex.Message);
-            throw;
+            throw new NotFoundException($"{typeof(TDomain).Name} not found");
         }
+
+        return Mapper.Map<TDomain>(res);
     }
 }
