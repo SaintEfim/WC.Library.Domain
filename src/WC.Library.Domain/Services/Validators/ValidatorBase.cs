@@ -8,27 +8,32 @@ namespace WC.Library.Domain.Services.Validators;
 public abstract class ValidatorBase<TDomain>
     where TDomain : class, IModel
 {
-    protected ValidatorBase(IEnumerable<IValidator> validators)
+    protected ValidatorBase(
+        IEnumerable<IValidator> validators)
     {
         Validators = validators;
     }
 
     protected IEnumerable<IValidator> Validators { get; }
 
-    protected void Validate<TV>(TDomain model, CancellationToken cancellationToken = default)
+    protected void Validate<TV>(
+        TDomain model,
+        CancellationToken cancellationToken = default)
     {
-        var source = Validators
-            .Where(v => v is IValidator<TDomain> && v.GetType().IsAssignableTo(typeof(TV)))
+        var source = Validators.Where(v => v is IValidator<TDomain> && v.GetType()
+                .IsAssignableTo(typeof(TV)))
             .Cast<IValidator<TDomain>>();
 
         Validate(model, source, cancellationToken);
     }
 
-    protected void Validate<TPayload, TV>(TPayload model, CancellationToken cancellationToken = default)
+    protected void Validate<TPayload, TV>(
+        TPayload model,
+        CancellationToken cancellationToken = default)
         where TPayload : class
     {
-        var source = Validators
-            .Where(v => v is IValidator<TPayload> && v.GetType().IsAssignableTo(typeof(TV)))
+        var source = Validators.Where(v => v is IValidator<TPayload> && v.GetType()
+                .IsAssignableTo(typeof(TV)))
             .Cast<IValidator<TPayload>>();
 
         Validate(model, source, cancellationToken);
@@ -40,8 +45,8 @@ public abstract class ValidatorBase<TDomain>
         CancellationToken cancellationToken = default)
         where TPayload : class
     {
-        var source = Validators
-            .Where(v => v is IDomainCustomValidator customValidator && customValidator.ActionName == actionName)
+        var source = Validators.Where(v =>
+                v is IDomainCustomValidator customValidator && customValidator.ActionName == actionName)
             .Cast<IValidator<TPayload>>();
 
         Validate(model, source, cancellationToken);
@@ -53,10 +58,15 @@ public abstract class ValidatorBase<TDomain>
         CancellationToken cancellationToken = default)
         where TPayload : class
     {
-        var results = Task.WhenAll(source.Select(async x => await x.ValidateAsync(model, cancellationToken))).Result;
-        var errors = results.SelectMany(x => x.Errors).Where(x => x != null).ToImmutableList();
+        var results = Task.WhenAll(source.Select(async x => await x.ValidateAsync(model, cancellationToken)))
+            .Result;
+        var errors = results.SelectMany(x => x.Errors)
+            .Where(x => x != null)
+            .ToImmutableList();
 
         if (!errors.IsEmpty)
+        {
             throw new ValidationException(errors);
+        }
     }
 }

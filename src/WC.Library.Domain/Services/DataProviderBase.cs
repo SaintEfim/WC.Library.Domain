@@ -16,8 +16,7 @@ public abstract class DataProviderBase<TProvider, TRepository, TDomain, TEntity>
     protected DataProviderBase(
         IMapper mapper,
         ILogger<TProvider> logger,
-        TRepository repository
-    )
+        TRepository repository)
     {
         Mapper = mapper;
         Logger = logger;
@@ -30,7 +29,8 @@ public abstract class DataProviderBase<TProvider, TRepository, TDomain, TEntity>
 
     private ILogger<TProvider> Logger { get; }
 
-    public virtual async Task<IEnumerable<TDomain>> Get(bool withIncludes = false,
+    public virtual async Task<IEnumerable<TDomain>> Get(
+        bool withIncludes = false,
         CancellationToken cancellationToken = default)
     {
         try
@@ -46,11 +46,13 @@ public abstract class DataProviderBase<TProvider, TRepository, TDomain, TEntity>
         }
     }
 
-    public virtual async Task<TDomain?> GetOneById(Guid id, bool withIncludes = false,
+    public virtual async Task<TDomain?> GetOneById(
+        Guid id,
+        bool withIncludes = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(id);
-        
+
         var res = await Repository.GetOneById(id, withIncludes, cancellationToken);
 
         if (res == null)
