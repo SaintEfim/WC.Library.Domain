@@ -2,5 +2,5 @@
 
 public interface IModel
 {
-    Guid Id { get; init; }
+    Guid Id { get; set; }
 }
