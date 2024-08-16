@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.Extensions.Logging;
 using WC.Library.Data.Models;
 using WC.Library.Data.Repository;
+using WC.Library.Data.Services;
 using WC.Library.Domain.Models;
 using WC.Library.Domain.Services.Validators;
 using WC.Library.Domain.Validators;
@@ -37,38 +38,43 @@ public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity>
 
     public async Task<TDomain> Create(
         TDomain model,
+        IWcTransaction? transaction,
         CancellationToken cancellationToken = default)
     {
         Validate<IDomainCreateValidator>(model, cancellationToken);
-        return await CreateAction(model, cancellationToken);
+        return await CreateAction(model, transaction, cancellationToken);
     }
 
     public async Task<TDomain> Update(
         TDomain model,
+        IWcTransaction? transaction,
         CancellationToken cancellationToken = default)
     {
         Validate<IDomainUpdateValidator>(model, cancellationToken);
-        return await UpdateAction(model, cancellationToken);
+        return await UpdateAction(model, transaction, cancellationToken);
     }
 
     public virtual async Task<TDomain> Delete(
         Guid id,
+        IWcTransaction? transaction,
         CancellationToken cancellationToken = default)
     {
-        var entity = await Repository.GetOneById(id, true, cancellationToken);
+        var entity = await Repository.GetOneById(id, true, transaction, cancellationToken);
 
         Validate<IDomainDeleteValidator>(Mapper.Map<TDomain>(entity), cancellationToken);
 
-        return await DeleteAction(id, cancellationToken);
+        return await DeleteAction(id, transaction, cancellationToken);
     }
 
     protected virtual async Task<TDomain> CreateAction(
         TDomain model,
+        IWcTransaction? transaction,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            return Mapper.Map<TDomain>(await Repository.Create(Mapper.Map<TEntity>(model), cancellationToken));
+            return Mapper.Map<TDomain>(await Repository.Create(Mapper.Map<TEntity>(model), transaction,
+                cancellationToken));
         }
         catch (Exception ex)
         {
@@ -79,11 +85,13 @@ public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity>
 
     protected virtual async Task<TDomain> UpdateAction(
         TDomain model,
+        IWcTransaction? transaction,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            return Mapper.Map<TDomain>(await Repository.Update(Mapper.Map<TEntity>(model), cancellationToken));
+            return Mapper.Map<TDomain>(await Repository.Update(Mapper.Map<TEntity>(model), transaction,
+                cancellationToken));
         }
         catch (Exception ex)
         {
@@ -94,13 +102,14 @@ public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity>
 
     protected virtual async Task<TDomain> DeleteAction(
         Guid id,
+        IWcTransaction? transaction,
         CancellationToken cancellationToken = default)
     {
         try
         {
             ArgumentNullException.ThrowIfNull(id);
 
-            return Mapper.Map<TDomain>(await Repository.Delete(id, cancellationToken));
+            return Mapper.Map<TDomain>(await Repository.Delete(id, transaction, cancellationToken));
         }
         catch (Exception ex)
         {

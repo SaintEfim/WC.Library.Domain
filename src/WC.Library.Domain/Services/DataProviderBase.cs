@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using WC.Library.Data.Models;
 using WC.Library.Data.Repository;
+using WC.Library.Data.Services;
 using WC.Library.Domain.Models;
 using WC.Library.Shared.Exceptions;
 
@@ -30,12 +31,13 @@ public abstract class DataProviderBase<TProvider, TRepository, TDomain, TEntity>
     private ILogger<TProvider> Logger { get; }
 
     public virtual async Task<IEnumerable<TDomain>> Get(
+        IWcTransaction? transaction,
         bool withIncludes = false,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var res = await Repository.Get(withIncludes, cancellationToken);
+            var res = await Repository.Get(withIncludes, transaction, cancellationToken);
 
             return Mapper.Map<ICollection<TDomain>>(res);
         }
@@ -48,12 +50,13 @@ public abstract class DataProviderBase<TProvider, TRepository, TDomain, TEntity>
 
     public virtual async Task<TDomain?> GetOneById(
         Guid id,
+        IWcTransaction? transaction,
         bool withIncludes = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(id);
 
-        var res = await Repository.GetOneById(id, withIncludes, cancellationToken);
+        var res = await Repository.GetOneById(id, withIncludes, transaction, cancellationToken);
 
         if (res == null)
         {
