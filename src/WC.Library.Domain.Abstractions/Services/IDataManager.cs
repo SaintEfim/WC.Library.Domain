@@ -8,16 +8,16 @@ public interface IDataManager<TDomain>
 {
     Task<TDomain> Create(
         TDomain model,
-        IWcTransaction? transaction,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default);
 
     Task<TDomain> Update(
         TDomain model,
-        IWcTransaction? transaction,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default);
 
     Task<TDomain> Delete(
         Guid id,
-        IWcTransaction? transaction,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default);
 }

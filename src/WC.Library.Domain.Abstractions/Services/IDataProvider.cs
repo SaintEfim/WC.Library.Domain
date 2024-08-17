@@ -7,13 +7,13 @@ public interface IDataProvider<TDomain>
     where TDomain : IModel
 {
     Task<IEnumerable<TDomain>> Get(
-        IWcTransaction? transaction,
         bool withIncludes = false,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default);
 
     Task<TDomain?> GetOneById(
         Guid id,
-        IWcTransaction? transaction,
         bool withIncludes = false,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default);
 }

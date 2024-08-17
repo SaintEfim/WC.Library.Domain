@@ -31,8 +31,8 @@ public abstract class DataProviderBase<TProvider, TRepository, TDomain, TEntity>
     private ILogger<TProvider> Logger { get; }
 
     public virtual async Task<IEnumerable<TDomain>> Get(
-        IWcTransaction? transaction,
         bool withIncludes = false,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default)
     {
         try
@@ -50,8 +50,8 @@ public abstract class DataProviderBase<TProvider, TRepository, TDomain, TEntity>
 
     public virtual async Task<TDomain?> GetOneById(
         Guid id,
-        IWcTransaction? transaction,
         bool withIncludes = false,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(id);

@@ -38,7 +38,7 @@ public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity>
 
     public async Task<TDomain> Create(
         TDomain model,
-        IWcTransaction? transaction,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default)
     {
         Validate<IDomainCreateValidator>(model, cancellationToken);
@@ -47,7 +47,7 @@ public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity>
 
     public async Task<TDomain> Update(
         TDomain model,
-        IWcTransaction? transaction,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default)
     {
         Validate<IDomainUpdateValidator>(model, cancellationToken);
@@ -56,7 +56,7 @@ public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity>
 
     public virtual async Task<TDomain> Delete(
         Guid id,
-        IWcTransaction? transaction,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default)
     {
         var entity = await Repository.GetOneById(id, true, transaction, cancellationToken);
@@ -68,7 +68,7 @@ public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity>
 
     protected virtual async Task<TDomain> CreateAction(
         TDomain model,
-        IWcTransaction? transaction,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default)
     {
         try
@@ -85,7 +85,7 @@ public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity>
 
     protected virtual async Task<TDomain> UpdateAction(
         TDomain model,
-        IWcTransaction? transaction,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default)
     {
         try
@@ -102,7 +102,7 @@ public abstract class DataManagerBase<TManager, TRepository, TDomain, TEntity>
 
     protected virtual async Task<TDomain> DeleteAction(
         Guid id,
-        IWcTransaction? transaction,
+        IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default)
     {
         try
