@@ -13,14 +13,21 @@ jobs:
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
     steps:
+      # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Install xmlstarlet
+      - name: Install xmlstarlet
+        run: sudo apt-get install -y xmlstarlet
+
+      # Setup .NET environment
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
 
+      # Build and publish libraries
       - name: Build and Publish Libraries
         run: |
           publish_package() {
@@ -39,8 +46,10 @@ jobs:
             fi
             echo "New version: $NEW_VERSION"
 
-            # Update version in csproj
-            sed -i "s|<Version>.*</Version>|<Version>$NEW_VERSION</Version>|g" $PROJECT_PATH
+            # Update .csproj file with new version
+            echo "Updating version in $PROJECT_PATH"
+            xmlstarlet ed --inplace \
+              -u "//Version" -v "$NEW_VERSION" "$PROJECT_PATH"
 
             # Build and pack package
             dotnet build $PROJECT_PATH --configuration Release
@@ -61,4 +70,3 @@ jobs:
           # Process each package
           publish_package "wc.library.domain.abstractions" "src/WC.Library.Domain.Abstractions/WC.Library.Domain.Abstractions.csproj"
           publish_package "wc.library.domain" "src/WC.Library.Domain/WC.Library.Domain.csproj"
-      
