@@ -23,19 +23,12 @@ jobs:
 
       - name: Build and Publish Libraries
         run: |
-          update_version_in_csproj() {
-            PROJECT_PATH=$1
-            NEW_VERSION=$2
-            # Обновляем версию в .csproj
-            sed -i "s|<Version>.*</Version>|<Version>$NEW_VERSION</Version>|g" $PROJECT_PATH
-          }
-
           publish_package() {
             PACKAGE_ID=$1
             PROJECT_PATH=$2
             echo "Processing package: $PACKAGE_ID"
 
-            # Получаем последнюю версию пакета с NuGet
+            # Get the latest version from NuGet
             PACKAGE_VERSION=$(curl -s https://api.nuget.org/v3-flatcontainer/${PACKAGE_ID}/index.json | jq -r '.versions[-1]')
             if [ -z "$PACKAGE_VERSION" ]; then
               echo "No versions found for $PACKAGE_ID. Starting from 1.0.0."
@@ -46,16 +39,14 @@ jobs:
             fi
             echo "New version: $NEW_VERSION"
 
-            # Обновляем версию в .csproj
-            update_version_in_csproj $PROJECT_PATH $NEW_VERSION
+            # Update version in csproj
+            sed -i "s|<Version>.*</Version>|<Version>$NEW_VERSION</Version>|g" $PROJECT_PATH
 
-            # Сборка проекта
+            # Build and pack package
             dotnet build $PROJECT_PATH --configuration Release
-
-            # Упаковка пакета
             dotnet pack $PROJECT_PATH --configuration Release
 
-            # Определяем путь до созданного .nupkg
+            # Determine the output path of the .nupkg file
             NUPKG_FILE=$(find "$(dirname "$PROJECT_PATH")/bin/Release" -name "*.nupkg" -type f)
             echo "NUPKG File $NUPKG_FILE"
             if [ -z "$NUPKG_FILE" ]; then
@@ -63,10 +54,11 @@ jobs:
               exit 1
             fi
 
-            # Публикуем пакет на NuGet
+            # Push package to NuGet
             dotnet nuget push "$NUPKG_FILE" -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
           }
 
-          # Публикуем каждый пакет
+          # Process each package
           publish_package "wc.library.domain.abstractions" "src/WC.Library.Domain.Abstractions/WC.Library.Domain.Abstractions.csproj"
           publish_package "wc.library.domain" "src/WC.Library.Domain/WC.Library.Domain.csproj"
+      
