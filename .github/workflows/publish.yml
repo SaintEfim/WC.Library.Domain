@@ -1,4 +1,4 @@
-﻿name: Publish Libraries to NuGet
+﻿name: Publish NuGet Package
 
 on:
   push:
@@ -6,14 +6,12 @@ on:
       - main
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
-
-    env:
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+    name: Build and Publish NuGet Packages
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Setup .NET
@@ -21,40 +19,53 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Build and Publish Libraries
+      - name: Get latest version for WC.Library.Domain
+        id: get-version-domain
         run: |
-          publish_package() {
-            PACKAGE_ID=$1
-            PROJECT_PATH=$2
-            echo "Processing package: $PACKAGE_ID"
+          PACKAGE_ID="wc.library.domain"
+          PACKAGE_VERSION=$(curl -s https://api.nuget.org/v3-flatcontainer/${PACKAGE_ID}/index.json | jq -r '.versions[-1]')
 
-            # Get the latest version from NuGet
-            PACKAGE_VERSION=$(curl -s https://api.nuget.org/v3-flatcontainer/${PACKAGE_ID}/index.json | jq -r '.versions[-1]')
-            if [ -z "$PACKAGE_VERSION" ]; then
-              echo "No versions found for $PACKAGE_ID. Starting from 1.0.0."
-              NEW_VERSION="1.0.0"
-            else
-              echo "Latest version of $PACKAGE_ID: $PACKAGE_VERSION"
-              NEW_VERSION=$(echo $PACKAGE_VERSION | awk -F. -v OFS=. '{$NF++; print}')
-            fi
-            echo "New version: $NEW_VERSION"
+          if [ -z "$PACKAGE_VERSION" ]; then
+            echo "No versions found on NuGet for $PACKAGE_ID. Starting from 1.0.0."
+            NEW_VERSION="1.0.0"
+          else
+            echo "Latest version of $PACKAGE_ID: $PACKAGE_VERSION"
+            NEW_VERSION=$(echo $PACKAGE_VERSION | awk -F. -v OFS=. '{$NF++; print}')
+          fi
 
-            # Build and pack package
-            dotnet build $PROJECT_PATH --configuration Release
-            dotnet pack $PROJECT_PATH --configuration Release /p:Version=$NEW_VERSION
+          echo "New version for $PACKAGE_ID: $NEW_VERSION"
+          echo "domain_version=$NEW_VERSION" >> $GITHUB_ENV
 
-            # Determine the output path of the .nupkg file
-            NUPKG_FILE=$(find "$(dirname "$PROJECT_PATH")/bin/Release" -name "*.nupkg" -type f)
-            echo "NUPKG File $NUPKG_FILE"
-            if [ -z "$NUPKG_FILE" ]; then
-              echo "Error: .nupkg file not found for $PACKAGE_ID"
-              exit 1
-            fi
+      - name: Get latest version for WC.Library.Domain.Abstractions
+        id: get-version-abstractions
+        run: |
+          PACKAGE_ID="wc.library.domain.abstractions"
+          PACKAGE_VERSION=$(curl -s https://api.nuget.org/v3-flatcontainer/${PACKAGE_ID}/index.json | jq -r '.versions[-1]')
 
-            # Push package to NuGet
-            dotnet nuget push "$NUPKG_FILE" -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
-          }
+          if [ -z "$PACKAGE_VERSION" ]; then
+            echo "No versions found on NuGet for $PACKAGE_ID. Starting from 1.0.0."
+            NEW_VERSION="1.0.0"
+          else
+            echo "Latest version of $PACKAGE_ID: $PACKAGE_VERSION"
+            NEW_VERSION=$(echo $PACKAGE_VERSION | awk -F. -v OFS=. '{$NF++; print}')
+          fi
 
-          # Process each package
-          publish_package "wc.library.domain.abstractions" "src/WC.Library.Domain.Abstractions/WC.Library.Domain.Abstractions.csproj"
-          publish_package "wc.library.domain" "src/WC.Library.Domain/WC.Library.Domain.csproj"
+          echo "New version for $PACKAGE_ID: $NEW_VERSION"
+          echo "abstractions_version=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Update version in WC.Library.Domain
+        run: |
+          dotnet build src/WC.Library.Domain/WC.Library.Domain.csproj /p:Version=${{ env.domain_version }}
+
+      - name: Update version in WC.Library.Domain.Abstractions
+        run: |
+          dotnet build src/WC.Library.Domain.Abstractions/WC.Library.Domain.Abstractions.csproj /p:Version=${{ env.abstractions_version }}
+
+      - name: Build and pack WC.Library.Domain
+        run: dotnet pack src/WC.Library.Domain/WC.Library.Domain.csproj -c Release -o ./out
+
+      - name: Build and pack WC.Library.Domain.Abstractions
+        run: dotnet pack src/WC.Library.Domain.Abstractions/WC.Library.Domain.Abstractions.csproj -c Release -o ./out
+
+      - name: Publish packages to NuGet
+        run: dotnet nuget push ./out/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
