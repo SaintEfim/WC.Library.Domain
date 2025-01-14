@@ -51,6 +51,10 @@ jobs:
             xmlstarlet ed --inplace \
               -u "//Version" -v "$NEW_VERSION" "$PROJECT_PATH"
 
+            # Display the updated .csproj file for debugging
+            echo "Updated .csproj:"
+            cat "$PROJECT_PATH"
+
             # Build and pack package
             dotnet build $PROJECT_PATH --configuration Release
             dotnet pack $PROJECT_PATH --configuration Release
