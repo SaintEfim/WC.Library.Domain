@@ -6,7 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>WC.Library.Domain.Abstractions</PackageId>
-    <Version></Version>
   </PropertyGroup>
 
   <ItemGroup>
