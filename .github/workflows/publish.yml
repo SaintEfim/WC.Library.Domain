@@ -23,6 +23,12 @@ jobs:
 
       - name: Build and Publish Libraries
         run: |
+          bump_version_in_csproj() {
+            PROJECT_PATH=$1
+            NEW_VERSION=$2
+            sed -i "s|<Version>.*</Version>|<Version>$NEW_VERSION</Version>|g" $PROJECT_PATH
+          }
+
           publish_package() {
             PACKAGE_ID=$1
             PROJECT_PATH=$2
@@ -39,9 +45,12 @@ jobs:
             fi
             echo "New version: $NEW_VERSION"
 
+            # Update version in .csproj
+            bump_version_in_csproj $PROJECT_PATH $NEW_VERSION
+
             # Build and pack package
             dotnet build $PROJECT_PATH --configuration Release
-            dotnet pack $PROJECT_PATH --configuration Release /p:Version=$NEW_VERSION
+            dotnet pack $PROJECT_PATH --configuration Release
 
             # Determine the output path of the .nupkg file
             NUPKG_FILE=$(find "$(dirname "$PROJECT_PATH")/bin/Release" -name "*.nupkg" -type f)
@@ -58,3 +67,4 @@ jobs:
           # Process each package
           publish_package "wc.library.domain.abstractions" "src/WC.Library.Domain.Abstractions/WC.Library.Domain.Abstractions.csproj"
           publish_package "wc.library.domain" "src/WC.Library.Domain/WC.Library.Domain.csproj"
+
