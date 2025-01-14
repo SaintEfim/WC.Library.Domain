@@ -49,7 +49,8 @@ jobs:
             # Update .csproj file with new version
             echo "Updating version in $PROJECT_PATH"
             xmlstarlet ed --inplace \
-              -u "//Version" -v "$NEW_VERSION" "$PROJECT_PATH"
+            -s "/Project" -t elem -n "Version" -v "$NEW_VERSION" "$PROJECT_PATH" \
+            || xmlstarlet ed --inplace -u "//Version" -v "$NEW_VERSION" "$PROJECT_PATH"
 
             # Display the updated .csproj file for debugging
             echo "Updated .csproj:"
