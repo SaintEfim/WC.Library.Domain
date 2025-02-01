@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
+using Sieve.Models;
 using WC.Library.Data.Models;
 using WC.Library.Data.Repository;
 using WC.Library.Data.Services;
@@ -31,13 +32,14 @@ public abstract class DataProviderBase<TProvider, TRepository, TDomain, TEntity>
     private ILogger<TProvider> Logger { get; }
 
     public virtual async Task<IEnumerable<TDomain>> Get(
+        SieveModel? filter = default,
         bool withIncludes = false,
         IWcTransaction? transaction = default,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var res = await Repository.Get(withIncludes, transaction, cancellationToken);
+            var res = await Repository.Get(filter, withIncludes, transaction, cancellationToken);
 
             return Mapper.Map<ICollection<TDomain>>(res);
         }
